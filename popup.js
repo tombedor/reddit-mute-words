@@ -7,7 +7,9 @@ class PopupManager {
   async init() {
     await this.loadMuteWords();
     this.updateWordCount();
+    this.updateFilterStats();
     this.setupEventListeners();
+    this.focusInput();
   }
 
   async loadMuteWords() {
@@ -89,6 +91,27 @@ class PopupManager {
       : `${count} mute word${count === 1 ? '' : 's'} active`;
   }
 
+  async updateFilterStats() {
+    try {
+      const result = await chrome.storage.sync.get(['filterStats']);
+      const stats = result.filterStats || { posts: 0, comments: 0 };
+      const filterStats = document.getElementById('filterStats');
+      
+      const totalFiltered = stats.posts + stats.comments;
+      if (totalFiltered === 0) {
+        filterStats.textContent = 'No content filtered yet';
+      } else {
+        const parts = [];
+        if (stats.posts > 0) parts.push(`${stats.posts} post${stats.posts === 1 ? '' : 's'}`);
+        if (stats.comments > 0) parts.push(`${stats.comments} comment${stats.comments === 1 ? '' : 's'}`);
+        filterStats.textContent = `Filtered: ${parts.join(', ')}`;
+      }
+    } catch (error) {
+      console.error('Failed to load filter stats:', error);
+      document.getElementById('filterStats').textContent = '';
+    }
+  }
+
   showStatus(message, type) {
     const status = document.getElementById('status');
     status.textContent = message;
@@ -98,6 +121,11 @@ class PopupManager {
     setTimeout(() => {
       status.style.display = 'none';
     }, 2000);
+  }
+
+  focusInput() {
+    const quickWordInput = document.getElementById('quickWordInput');
+    quickWordInput.focus();
   }
 }
 

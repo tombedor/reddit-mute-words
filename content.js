@@ -22,8 +22,25 @@ class RedditMuteWords {
     }
   }
 
+  async updateFilterStats(postsFiltered = 0, commentsFiltered = 0) {
+    try {
+      const result = await chrome.storage.sync.get(['filterStats']);
+      const currentStats = result.filterStats || { posts: 0, comments: 0 };
+      
+      const newStats = {
+        posts: currentStats.posts + postsFiltered,
+        comments: currentStats.comments + commentsFiltered
+      };
+      
+      await chrome.storage.sync.set({ filterStats: newStats });
+    } catch (error) {
+      console.error('Failed to update filter stats:', error);
+    }
+  }
+
   filterPosts() {
     const posts = document.querySelectorAll('div[data-fullname^="t3_"]');
+    let filteredCount = 0;
     
     posts.forEach(post => {
       if (post.dataset.filtered) return;
@@ -39,12 +56,18 @@ class RedditMuteWords {
       if (shouldHide) {
         post.style.display = 'none';
         post.dataset.filtered = 'true';
+        filteredCount++;
       }
     });
+    
+    if (filteredCount > 0) {
+      this.updateFilterStats(filteredCount, 0);
+    }
   }
 
   filterComments() {
     const comments = document.querySelectorAll('div[data-fullname^="t1_"]');
+    let filteredCount = 0;
     
     comments.forEach(comment => {
       if (comment.dataset.filtered) return;
@@ -60,8 +83,13 @@ class RedditMuteWords {
       if (shouldHide) {
         comment.style.display = 'none';
         comment.dataset.filtered = 'true';
+        filteredCount++;
       }
     });
+    
+    if (filteredCount > 0) {
+      this.updateFilterStats(0, filteredCount);
+    }
   }
 
   setupObserver() {
