@@ -8,6 +8,7 @@ class RedditMuteWords {
   async init() {
     await this.loadMuteWords();
     this.filterPosts();
+    this.filterComments();
     this.setupObserver();
   }
 
@@ -42,6 +43,27 @@ class RedditMuteWords {
     });
   }
 
+  filterComments() {
+    const comments = document.querySelectorAll('div[data-fullname^="t1_"]');
+    
+    comments.forEach(comment => {
+      if (comment.dataset.filtered) return;
+      
+      const textElement = comment.querySelector('.usertext-body .md');
+      if (!textElement) return;
+      
+      const text = textElement.textContent.toLowerCase();
+      const shouldHide = this.muteWords.some(word => 
+        text.includes(word.toLowerCase())
+      );
+      
+      if (shouldHide) {
+        comment.style.display = 'none';
+        comment.dataset.filtered = 'true';
+      }
+    });
+  }
+
   setupObserver() {
     if (this.observer) {
       this.observer.disconnect();
@@ -49,6 +71,7 @@ class RedditMuteWords {
 
     this.observer = new MutationObserver(() => {
       this.filterPosts();
+      this.filterComments();
     });
 
     this.observer.observe(document.body, {
@@ -66,7 +89,14 @@ class RedditMuteWords {
       delete post.dataset.filtered;
     });
     
+    const hiddenComments = document.querySelectorAll('div[data-fullname^="t1_"][data-filtered="true"]');
+    hiddenComments.forEach(comment => {
+      comment.style.display = '';
+      delete comment.dataset.filtered;
+    });
+    
     this.filterPosts();
+    this.filterComments();
   }
 }
 
