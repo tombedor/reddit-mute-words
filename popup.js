@@ -1,0 +1,106 @@
+class PopupManager {
+  constructor() {
+    this.muteWords = [];
+    this.init();
+  }
+
+  async init() {
+    await this.loadMuteWords();
+    this.updateWordCount();
+    this.setupEventListeners();
+  }
+
+  async loadMuteWords() {
+    try {
+      const result = await chrome.storage.sync.get(['muteWords']);
+      this.muteWords = result.muteWords || [];
+    } catch (error) {
+      console.error('Failed to load mute words:', error);
+      this.showStatus('Failed to load settings', 'error');
+    }
+  }
+
+  async saveMuteWords() {
+    try {
+      await chrome.storage.sync.set({ muteWords: this.muteWords });
+      this.showStatus('Word added successfully', 'success');
+    } catch (error) {
+      console.error('Failed to save mute words:', error);
+      this.showStatus('Failed to save word', 'error');
+    }
+  }
+
+  setupEventListeners() {
+    const quickWordInput = document.getElementById('quickWordInput');
+    const quickAddBtn = document.getElementById('quickAddBtn');
+    const optionsBtn = document.getElementById('optionsBtn');
+
+    quickAddBtn.addEventListener('click', () => this.quickAddWord());
+    
+    quickWordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.quickAddWord();
+      }
+    });
+
+    quickWordInput.addEventListener('input', () => {
+      const trimmed = quickWordInput.value.trim();
+      quickAddBtn.disabled = !trimmed || this.muteWords.includes(trimmed.toLowerCase());
+    });
+
+    optionsBtn.addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+    });
+  }
+
+  async quickAddWord() {
+    const quickWordInput = document.getElementById('quickWordInput');
+    const word = quickWordInput.value.trim();
+    
+    if (!word) {
+      this.showStatus('Please enter a word or phrase', 'error');
+      return;
+    }
+
+    const lowerWord = word.toLowerCase();
+    if (this.muteWords.includes(lowerWord)) {
+      this.showStatus('Word already exists', 'error');
+      return;
+    }
+
+    if (word.length > 100) {
+      this.showStatus('Word too long (max 100 chars)', 'error');
+      return;
+    }
+
+    this.muteWords.push(lowerWord);
+    await this.saveMuteWords();
+    this.updateWordCount();
+    
+    quickWordInput.value = '';
+    quickWordInput.focus();
+  }
+
+  updateWordCount() {
+    const wordCount = document.getElementById('wordCount');
+    const count = this.muteWords.length;
+    wordCount.textContent = count === 0 
+      ? 'No mute words configured' 
+      : `${count} mute word${count === 1 ? '' : 's'} active`;
+  }
+
+  showStatus(message, type) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.className = `status ${type}`;
+    status.style.display = 'block';
+    
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 2000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new PopupManager();
+});

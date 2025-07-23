@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Reddit Mute Words</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+        }
+        
+        h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .quick-add {
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 8px;
+            background: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        button:hover {
+            background: #e03d00;
+        }
+        
+        .options-btn {
+            background: #007cba;
+        }
+        
+        .options-btn:hover {
+            background: #006ba1;
+        }
+        
+        .word-count {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reddit Mute Words</h2>
+    
+    <div class="word-count" id="wordCount">Loading...</div>
+    
+    <div class="quick-add">
+        <input type="text" id="quickWordInput" placeholder="Quick add word/phrase..." maxlength="100">
+        <button id="quickAddBtn">Add</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <button id="optionsBtn" class="options-btn">Manage All Words</button>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
