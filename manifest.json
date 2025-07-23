@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Reddit Mute Words",
+  "name": "Mute Words for Reddit",
   "version": "1.0",
-  "description": "Hide Reddit posts containing specified words or phrases in their titles",
+  "description": "Hide Reddit posts and comments containing specified words or phrases",
   "permissions": [
     "storage",
     "activeTab"
@@ -24,6 +24,6 @@
   "options_page": "options.html",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Reddit Mute Words"
+    "default_title": "Mute Words for Reddit"
   }
 }
